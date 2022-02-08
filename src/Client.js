@@ -4,21 +4,18 @@ const { join, resolve } = require('path');
 const AsciiTable = require('ascii-table');
 const { fail } = require('./utils/emojis.json');
 
-/**
- * Calypso's custom client
- * @extends Discord.Client
- */
 class Client extends Discord.Client {
 
   /**
    * Create a new client
    * @param {Object} config 
-   * @param {ClientOptions} options 
+   * @param {{intents: Discord.Intents}} options
    */
   constructor(config, options = {}) {
     
     super(options);
 
+    this.botName = config.botName;
     /**
      * Create logger
      */
@@ -46,13 +43,13 @@ class Client extends Discord.Client {
 
     /** 
      * Collection of bot commands
-     * @type {Collection<string, Command>}
+     * @type {Discord.Collection<string, Command>}
      */
     this.commands = new Discord.Collection();
 
     /** 
      * Collection of command aliases
-     * @type {Collection<string, Command>}
+     * @type {Discord.Collection<string, Command>}
      */
     this.aliases = new Discord.Collection();
 
@@ -197,14 +194,15 @@ class Client extends Discord.Client {
    * Creates and sends system failure embed
    * @param {Guild} guild
    * @param {string} error
-   * @param {string} errorMessage 
+   * @param {string} errorMessage
+   * @param {string} errMessage
    */
-  sendSystemErrorMessage(guild, error, errorMessage) {
+  sendSystemErrorMessage(guild, error, errorMessage,errMessage) {
 
     // Get system channel
     const systemChannelId = this.db.settings.selectSystemChannelId.pluck().get(guild.id);
     const systemChannel = guild.channels.cache.get(systemChannelId);
-
+    this.logger.error(errMessage);
     if ( // Check channel and permissions
       !systemChannel || 
       !systemChannel.viewable || 
@@ -217,7 +215,7 @@ class Client extends Discord.Client {
       .setDescription(`\`\`\`diff\n- System Failure\n+ ${errorMessage}\`\`\``)
       .setTimestamp()
       .setColor(guild.me.displayHexColor);
-    systemChannel.send(embed);
+    systemChannel.send({embeds:[embed]});
   }
 }
 

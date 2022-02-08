@@ -16,7 +16,7 @@ function capitalize(string) {
  * @param {*} value
  */
 function removeElement(arr, value) {
-  var index = arr.indexOf(value);
+  let index = arr.indexOf(value);
   if (index > -1) {
     arr.splice(index, 1);
   }
@@ -63,8 +63,7 @@ function trimStringFromArray(arr, maxLen = 2048, joinChar = '\n') {
 function getRange(arr, current, interval) {
   const max = (arr.length > current + interval) ? current + interval : arr.length;
   current = current + 1;
-  const range = (arr.length == 1 || arr.length == current || interval == 1) ? `[${current}]` : `[${current} - ${max}]`;
-  return range;
+  return (arr.length === 1 || arr.length === current || interval === 1) ? `[${current}]` : `[${current} - ${max}]`;
 }
 
 
@@ -83,14 +82,16 @@ function getOrdinalNumeral(number) {
 
 /**
  * Gets the next moderation case number
- * @param {Client} client 
- * @param {Guild} guild
+ * @param client
+ * @param guild
+ * @param modLog
+ * @returns {Promise<number>}
  */
 async function getCaseNumber(client, guild, modLog) {
   
   const message = (await modLog.messages.fetch({ limit: 100 })).filter(m => m.member === guild.me &&
     m.embeds[0] &&
-    m.embeds[0].type == 'rich' &&
+//    m.embeds[0].type === 'rich' &&
     m.embeds[0].footer &&
     m.embeds[0].footer.text &&
     m.embeds[0].footer.text.startsWith('Case')
@@ -147,7 +148,7 @@ function replaceCrownKeywords(message) {
  * Transfers crown from one member to another
  * @param {Client} client 
  * @param {Guild} guild
- * @param {Role} crownRole
+ * @param {Role} crownRoleId
  */
 async function transferCrown(client, guild, crownRoleId) {
 
@@ -212,7 +213,7 @@ async function transferCrown(client, guild, crownRoleId) {
       .replace(/`?\?tag`?/g, winner.user.tag) // Tag substitution
       .replace(/`?\?role`?/g, crownRole) // Role substitution
       .replace(/`?\?points`?/g, points); // Points substitution
-    crownChannel.send(new MessageEmbed().setDescription(crownMessage).setColor(guild.me.displayHexColor));
+    crownChannel.send({ embed: [new MessageEmbed().setDescription(crownMessage).setColor(guild.me.displayHexColor)]});
   }
 
   client.logger.info(`${guild.name}: Assigned crown role to ${winner.user.tag} and reset server points`);

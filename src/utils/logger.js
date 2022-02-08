@@ -21,7 +21,7 @@ const logger = createLogger({
   level: 'debug',
   format: format.combine(
     format.errors({ stack: true }),
-    format.label({ label: path.basename(process.mainModule.filename) }),
+    format.label({ label: path.basename(require.main.filename) }),
     format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' })
   ),
   transports: [ 

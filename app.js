@@ -5,16 +5,16 @@ const { Intents } = require('discord.js');
 global.__basedir = __dirname;
 
 // Client setup
-const intents = new Intents();
-intents.add(
-  'GUILD_PRESENCES',
-  'GUILD_MEMBERS',
-  'GUILDS',
-  'GUILD_VOICE_STATES',
-  'GUILD_MESSAGES',
-  'GUILD_MESSAGE_REACTIONS'
-);
-const client = new Client(config, { ws: { intents: intents } });
+const client = new Client(config, {
+  intents: [
+    Intents.FLAGS.GUILD_PRESENCES,
+    Intents.FLAGS.GUILD_MEMBERS,
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_VOICE_STATES,
+    Intents.FLAGS.GUILD_MESSAGES,
+    Intents.FLAGS.GUILD_MESSAGE_REACTIONS
+  ]
+});
 
 // Initialize client
 function init() {

@@ -31,13 +31,13 @@ module.exports = (client, message) => {
       // Check if mod channel
       if (modChannelIds.includes(message.channel.id)) {
         if (
-          command.type != client.types.MOD || (command.type == client.types.MOD && 
-          message.channel.permissionsFor(message.author).missing(command.userPermissions) != 0)
+          command.type !== client.types.MOD || (command.type === client.types.MOD &&
+          message.channel.permissionsFor(message.author).missing(command.userPermissions) !== 0)
         ) {
           // Update points with messagePoints value
           if (pointTracking)
             client.db.users.updatePoints.run({ points: messagePoints }, message.author.id, message.guild.id);
-          return; // Return early so Calypso doesn't respond
+          return; // Return early so bot doesn't respond
         }
       }
 
@@ -70,7 +70,7 @@ module.exports = (client, message) => {
         `)
         .setFooter('DM Nettles#8880 to speak directly with the developer!')
         .setColor(message.guild.me.displayHexColor);
-      message.channel.send(embed);
+      message.channel.send({embeds:[embed]});
     }
   }
 

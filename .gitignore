@@ -10,3 +10,4 @@ to-do.txt
 
 # do not ignore
 !.gitkeep
+.DS_Store

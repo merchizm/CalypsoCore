@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed ,GuildMember ,TextChannel } = require('discord.js');
 
 /**
  * Calypso's Reaction Menu class
@@ -102,7 +102,7 @@ module.exports = class ReactionMenu {
       .setTitle(this.embed.title + ' ' + this.client.utils.getRange(this.arr, this.current, this.interval))
       .setDescription(description);
 
-    this.channel.send(first).then(message => {
+    this.channel.send({embeds:[first]}).then(message => {
 
       /**
        * The menu message
@@ -130,10 +130,10 @@ module.exports = class ReactionMenu {
   createCollector() {
     
     // Create collector
-    const collector = this.message.createReactionCollector((reaction, user) => {
-      return (this.emojis.includes(reaction.emoji.name) || this.emojis.includes(reaction.emoji.id)) &&
-        user.id == this.memberId;
-    }, { time: this.timeout });
+    const collector = this.message.createReactionCollector({ filter: (reaction, user) => {
+        return (this.emojis.includes(reaction.emoji.name) || this.emojis.includes(reaction.emoji.id)) &&
+            user.id === this.memberId;
+      } ,time: this.timeout });
     
     // On collect
     collector.on('collect', async reaction => {

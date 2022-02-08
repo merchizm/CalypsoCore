@@ -1,14 +1,14 @@
 module.exports = async (client) => {
   
   const activities = [
-    { name: 'your commands', type: 'LISTENING' }, 
-    { name: '@Calypso', type: 'LISTENING' }
+    { name: 'upgrade', type: 'LISTENING' },
+    { name: client.botName, type: 'LISTENING' }
   ];
 
   // Update presence
-  client.user.setPresence({ status: 'online', activity: activities[0] });
+  client.user.setPresence({ status: 'online', activities: [activities[0]] });
 
-  let activity = 1;
+  let activity = 0;
 
   // Update activity every 30 seconds
   setInterval(() => {
@@ -43,10 +43,10 @@ module.exports = async (client) => {
     client.db.settings.insertRow.run(
       guild.id,
       guild.name,
-      guild.systemChannelID, // Default channel
-      guild.systemChannelID, // Welcome channel
-      guild.systemChannelID, // Farewell channel
-      guild.systemChannelID,  // Crown Channel
+      guild.systemChannelId, // Default channel
+      guild.systemChannelId, // Welcome channel
+      guild.systemChannelId, // Farewell channel
+      guild.systemChannelId,  // Crown Channel
       modLog ? modLog.id : null,
       adminRole ? adminRole.id : null,
       modRole ? modRole.id : null,
@@ -110,15 +110,15 @@ module.exports = async (client) => {
 
   // Remove left guilds
   const dbGuilds = client.db.settings.selectGuilds.all();
-  const guilds = client.guilds.cache.array();
+  const guilds = new Array(client.guilds.cache);
   const leftGuilds = dbGuilds.filter(g1 => !guilds.some(g2 => g1.guild_id === g2.id));
   for (const guild of leftGuilds) {
     client.db.settings.deleteGuild.run(guild.guild_id);
     client.db.users.deleteGuild.run(guild.guild_id);
 
-    client.logger.info(`Calypso has left ${guild.guild_name}`);
+    client.logger.info(`${client.botName} has left ${guild.guild_name}`);
   }
 
-  client.logger.info('Calypso is now online');
-  client.logger.info(`Calypso is running on ${client.guilds.cache.size} server(s)`);
+  client.logger.info(`${client.botName} is now online`);
+  client.logger.info(`${client.botName} is running on ${client.guilds.cache.size} server(s)`);
 };

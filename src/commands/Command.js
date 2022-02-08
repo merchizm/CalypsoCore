@@ -148,8 +148,7 @@ class Command {
     if (!message.channel.permissionsFor(message.guild.me).has(['SEND_MESSAGES', 'EMBED_LINKS'])) return false;
     const clientPermission = this.checkClientPermissions(message);
     const userPermission = this.checkUserPermissions(message, ownerOverride);
-    if (clientPermission && userPermission) return true;
-    else return false;
+    return clientPermission && userPermission;
   }
 
   /**
@@ -165,7 +164,7 @@ class Command {
       return false;
     }
     
-    if (message.member.hasPermission('ADMINISTRATOR')) return true;
+    if (message.member.permissions.has('ADMINISTRATOR')) return true;
     if (this.userPermissions) {
       const missingPermissions =
         message.channel.permissionsFor(message.author).missing(this.userPermissions).map(p => permissions[p]);
@@ -176,7 +175,7 @@ class Command {
           .setDescription(`\`\`\`diff\n${missingPermissions.map(p => `- ${p}`).join('\n')}\`\`\``)
           .setTimestamp()
           .setColor(message.guild.me.displayHexColor);
-        message.channel.send(embed);
+        message.channel.send({embeds:[embed]});
         return false;
       }
     }
@@ -185,8 +184,7 @@ class Command {
 
   /**
    * Checks the client permissions
-   * @param {Message} message 
-   * @param {boolean} ownerOverride 
+   * @param {Message} message
    */
   checkClientPermissions(message) {
     const missingPermissions =
@@ -198,7 +196,7 @@ class Command {
         .setDescription(`\`\`\`diff\n${missingPermissions.map(p => `- ${p}`).join('\n')}\`\`\``)
         .setTimestamp()
         .setColor(message.guild.me.displayHexColor);
-      message.channel.send(embed);
+      message.channel.send({embeds:[embed]});
       return false;
 
     } else return true;
@@ -223,7 +221,7 @@ class Command {
       .setColor(message.guild.me.displayHexColor);
     if (this.examples) embed.addField('Examples', this.examples.map(e => `\`${prefix}${e}\``).join('\n'));
     if (errorMessage) embed.addField('Error Message', `\`\`\`${errorMessage}\`\`\``);
-    message.channel.send(embed);
+    message.channel.send({embeds:[embed]});
   }
 
   /**
@@ -251,7 +249,7 @@ class Command {
         embed.addField(field, fields[field], true);
       }
       embed.addField('Reason', reason);
-      modLog.send(embed).catch(err => message.client.logger.error(err.stack));
+      modLog.send({embeds:[embed]}).catch(err => message.client.logger.error(err.stack));
     }
   }
 
