@@ -1,7 +1,7 @@
 const Command = require('../Command.js');
 const { MessageEmbed } = require('discord.js');
 const { oneLine } = require('common-tags');
-
+//***
 module.exports = class ReportBugCommand extends Command {
   constructor(client) {
     super(client, {
@@ -9,7 +9,7 @@ module.exports = class ReportBugCommand extends Command {
       aliases: ['bugreport', 'report', 'bug', 'rb', 'br'],
       usage: 'reportbug <message>',
       description: oneLine`
-        Sends a message to the Calypso Support Server's bug report channel.
+        Sends a message to the ${client.botName} Support Server's bug report channel.
         When reporting a bug, please include as much information as possible.
       `,
       type: client.types.MISC,
@@ -42,8 +42,8 @@ module.exports = class ReportBugCommand extends Command {
       .setThumbnail('https://raw.githubusercontent.com/sabattle/CalypsoBot/develop/data/images/Calypso.png')
       .setDescription(oneLine`
         Successfully sent bug report!
-        Please join the [Calypso Support Server](https://discord.gg/pnYVdut) to further discuss your issue.
-        Additionally, feel free to submit an issue on [GitHub](https://github.com/sabattle/CalypsoBot/issues).
+        Please join the [CalypsoCore Support Server](${message.client.supportServer}) to further discuss your issue.
+        Additionally, feel free to submit an issue on [GitHub](https://github.com/merchizm/CalypsoCore/issues).
       `) 
       .addField('Member', message.member, true)
       .addField('Message', report)

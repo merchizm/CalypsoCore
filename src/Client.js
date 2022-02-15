@@ -1,18 +1,19 @@
 const Discord = require('discord.js');
-const { readdir, readdirSync } = require('fs');
-const { join, resolve } = require('path');
+const {readdir, readdirSync} = require('fs');
+const {join, resolve} = require('path');
 const AsciiTable = require('ascii-table');
-const { fail } = require('./utils/emojis.json');
+const {fail} = require('./utils/emojis.json');
+const mongoose = require('mongoose');
 
 class Client extends Discord.Client {
 
   /**
    * Create a new client
-   * @param {Object} config 
+   * @param {Object} config
    * @param {{intents: Discord.Intents}} options
    */
   constructor(config, options = {}) {
-    
+
     super(options);
 
     this.botName = config.botName;
@@ -24,7 +25,21 @@ class Client extends Discord.Client {
     /**
      * Create database
      */
-    this.db = require('./utils/db.js');
+    mongoose.connect(config.mongoDB_connection_str,
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      });
+    this.db = {
+      connection: mongoose.connection,
+      settings: require('./database/controllers/settings'),
+      users: require('./database/controllers/users'),
+      models: {
+        settings: require('./database/models/settings'),
+        users: require('./database/models/users')
+      }
+    };
+    this.db.connection.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
     /**
      * All possible command types
@@ -41,61 +56,79 @@ class Client extends Discord.Client {
       OWNER: 'owner'
     };
 
-    /** 
+    /**
      * Collection of bot commands
      * @type {Discord.Collection<string, Command>}
      */
     this.commands = new Discord.Collection();
 
-    /** 
+    /**
      * Collection of command aliases
      * @type {Discord.Collection<string, Command>}
      */
     this.aliases = new Discord.Collection();
 
-    /** 
+    /**
      * Array of trivia topics
      * @type {Array<string>}
      */
     this.topics = [];
 
-    /** 
+    /**
      * Login token
      * @type {string}
      */
     this.token = config.token;
 
-    /** 
+    /**
      * API keys
      * @type {Object}
      */
     this.apiKeys = config.apiKeys;
 
-    /** 
-     * Calypso's owner ID
+    /**
+     * Bot owner ID
      * @type {string}
      */
     this.ownerId = config.ownerId;
 
-    /** 
-     * Calypso's bug report channel ID
+    /**
+     * Bot description
+     * @type {string}
+     */
+    this.botDesc = config.botDesc;
+
+    /**
+     * Bot invite link
+     * @type {string}
+     */
+    this.inviteLink = config.inviteLink;
+
+    /**
+     * Bot support server link
+     * @type {string}
+     */
+    this.supportServer = config.supportServer;
+
+    /**
+     * Bot bug report channel ID
      * @type {string}
      */
     this.bugReportChannelId = config.bugReportChannelId;
 
-    /** 
-     * Calypso's feedback channel ID
+    /**
+     * Bot feedback channel ID
      * @type {string}
      */
     this.feedbackChannelId = config.feedbackChannelId;
 
-    /** 
-     * Calypso's server log channel ID
+    /**
+     * Bot server log channel ID
      * @type {string}
      */
     this.serverLogId = config.serverLogId;
 
-    /** 
+    /**
      * Utility functions
      * @type {Object}
      */
@@ -107,7 +140,7 @@ class Client extends Discord.Client {
 
   /**
    * Loads all available events
-   * @param {string} path 
+   * @param {string} path
    */
   loadEvents(path) {
     readdir(path, (err, files) => {
@@ -128,13 +161,13 @@ class Client extends Discord.Client {
 
   /**
    * Loads all available commands
-   * @param {string} path 
+   * @param {string} path
    */
   loadCommands(path) {
     this.logger.info('Loading commands...');
     let table = new AsciiTable('Commands');
     table.setHeading('File', 'Aliases', 'Type', 'Status');
-    readdirSync(path).filter( f => !f.endsWith('.js')).forEach( dir => {
+    readdirSync(path).filter(f => !f.endsWith('.js')).forEach(dir => {
       const commands = readdirSync(resolve(__basedir, join(path, dir))).filter(f => f.endsWith('js'));
       commands.forEach(f => {
         const Command = require(resolve(__basedir, join(path, dir, f)));
@@ -164,7 +197,7 @@ class Client extends Discord.Client {
 
   /**
    * Loads all available trivia topics
-   * @param {string} path 
+   * @param {string} path
    */
   loadTopics(path) {
     readdir(path, (err, files) => {
@@ -183,7 +216,7 @@ class Client extends Discord.Client {
 
   /**
    * Checks if user is the bot owner
-   * @param {User} user 
+   * @param {User} user
    */
   isOwner(user) {
     if (user.id === this.ownerId) return true;
@@ -197,25 +230,25 @@ class Client extends Discord.Client {
    * @param {string} errorMessage
    * @param {string} errMessage
    */
-  sendSystemErrorMessage(guild, error, errorMessage,errMessage) {
+  sendSystemErrorMessage(guild, error, errorMessage, errMessage) {
 
     // Get system channel
     const systemChannelId = this.db.settings.selectSystemChannelId.pluck().get(guild.id);
     const systemChannel = guild.channels.cache.get(systemChannelId);
     this.logger.error(errMessage);
     if ( // Check channel and permissions
-      !systemChannel || 
-      !systemChannel.viewable || 
+      !systemChannel ||
+      !systemChannel.viewable ||
       !systemChannel.permissionsFor(guild.me).has(['SEND_MESSAGES', 'EMBED_LINKS'])
     ) return;
 
     const embed = new Discord.MessageEmbed()
-      .setAuthor(`${this.user.tag}`, this.user.displayAvatarURL({ dynamic: true }))
+      .setAuthor(`${this.user.tag}`, this.user.displayAvatarURL({dynamic: true}))
       .setTitle(`${fail} System Error: \`${error}\``)
       .setDescription(`\`\`\`diff\n- System Failure\n+ ${errorMessage}\`\`\``)
       .setTimestamp()
       .setColor(guild.me.displayHexColor);
-    systemChannel.send({embeds:[embed]});
+    systemChannel.send({embeds: [embed]});
   }
 }
 

@@ -1,16 +1,16 @@
 const Command = require('../Command.js');
 const { MessageEmbed } = require('discord.js');
 const { oneLine } = require('common-tags');
-
+//**
 module.exports = class FeedbackCommand extends Command {
   constructor(client) {
     super(client, {
       name: 'feedback',
       aliases: ['fb'],
       usage: 'feedback <message>',
-      description: 'Sends a message to the Calypso Support Server\'s feedback channel.',
+      description: `Sends a message to the ${client.botName} Support Server's feedback channel.`,
       type: client.types.MISC,
-      examples: ['feedback We love Calypso!']
+      examples: [`feedback We love ${client.botName}!`]
     });
   }
   run(message, args) {
@@ -30,16 +30,15 @@ module.exports = class FeedbackCommand extends Command {
       .setFooter(message.member.displayName,  message.author.displayAvatarURL({ dynamic: true }))
       .setTimestamp()
       .setColor(message.guild.me.displayHexColor);
-    feedbackChannel.send(feedbackEmbed);
+    feedbackChannel.send({embeds:[feedbackEmbed]});
 
     // Send response
     if (feedback.length > 1024) feedback = feedback.slice(0, 1021) + '...';
     const embed = new MessageEmbed()
       .setTitle('Feedback')
-      .setThumbnail('https://raw.githubusercontent.com/sabattle/CalypsoBot/develop/data/images/Calypso.png')
       .setDescription(oneLine`
         Successfully sent feedback!
-        Please join the [Calypso Support Server](https://discord.gg/pnYVdut) to further discuss your feedback.
+        Please join the [Calypso Support Server](${message.client.supportServer}) to further discuss your feedback.
       `) 
       .addField('Member', message.member, true)
       .addField('Message', feedback)
