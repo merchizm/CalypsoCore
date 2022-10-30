@@ -25,7 +25,7 @@ class Client extends Discord.Client {
     /**
      * Create database
      */
-    mongoose.connect(config.mongoDB_connection_str,
+    mongoose.connect(config.mongoDBConnectionString,
       {
         useNewUrlParser: true,
         useUnifiedTopology: true
@@ -47,9 +47,6 @@ class Client extends Discord.Client {
      */
     this.types = {
       INFO: 'info',
-      FUN: 'fun',
-      COLOR: 'color',
-      POINTS: 'points',
       MISC: 'misc',
       MOD: 'mod',
       ADMIN: 'admin',
@@ -79,12 +76,6 @@ class Client extends Discord.Client {
      * @type {string}
      */
     this.token = config.token;
-
-    /**
-     * API keys
-     * @type {Object}
-     */
-    this.apiKeys = config.apiKeys;
 
     /**
      * Bot owner ID

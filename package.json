@@ -31,7 +31,10 @@
     "type": "git",
     "url": "git+https://merchizm@github.com/merchizm/CalypsoCore.git"
   },
-  "author": "Meriç",
+  "authors": [
+    "merchizm <merich@duck.com>",
+    "Sebastian Battle"
+  ],
   "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/merchizm/CalypsoCore/issues"
